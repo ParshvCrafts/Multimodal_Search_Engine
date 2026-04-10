@@ -1,0 +1,9 @@
+[project]
+name = "asos-search-backend"
+version = "1.0.0"
+description = "ASOS Multimodal Fashion Search Engine API"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".."]
