@@ -3,15 +3,22 @@ import { useEffect, useRef, useState } from 'react'
 import { MOCK_PRODUCTS } from '@/lib/mock-data'
 
 const REAL_CARDS = MOCK_PRODUCTS.slice(0, 6)
-const CLONE_CARDS = MOCK_PRODUCTS.slice(0, 4)
-const ALL_CARDS = [...REAL_CARDS, ...CLONE_CARDS]
+// 2 leading clones (last 2 real cards) enable seamless backward wrap
+const LEAD_CLONES = REAL_CARDS.slice(-2)
+// 4 trailing clones (first 4 real cards) enable seamless forward wrap
+const TRAIL_CLONES = REAL_CARDS.slice(0, 4)
+const ALL_CARDS = [...LEAD_CLONES, ...REAL_CARDS, ...TRAIL_CLONES]
+// Indices: [0=R4, 1=R5, 2=R0, 3=R1, 4=R2, 5=R3, 6=R4, 7=R5, 8=R0, 9=R1, 10=R2, 11=R3]
+const OFFSET = LEAD_CLONES.length   // 2 — first real card lives at this index
 const TOTAL_REAL = REAL_CARDS.length  // 6
 const VISIBLE = 4
 const GAP = 20
+const MIN_IDX = OFFSET                           // 2
+const MAX_IDX = OFFSET + TOTAL_REAL - VISIBLE    // 4
 
 export default function Carousel() {
   const trackRef = useRef<HTMLDivElement>(null)
-  const [current, setCurrent] = useState(0)
+  const [current, setCurrent] = useState(MIN_IDX)
   const busyRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -29,46 +36,51 @@ export default function Carousel() {
     track.style.transform = `translateX(-${idx * cardWidth()}px)`
     setCurrent(idx)
     if (!animate) {
-      track.getBoundingClientRect()
+      track.getBoundingClientRect() // force reflow to flush the transition removal
       track.style.transition = 'transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
     }
   }
 
+  const withTransitionEnd = (cb: () => void) => {
+    const track = trackRef.current!
+    const handler = () => {
+      track.removeEventListener('transitionend', handler)
+      cb()
+    }
+    track.addEventListener('transitionend', handler)
+  }
+
   const advance = () => {
     if (busyRef.current) return
+    busyRef.current = true
     const next = current + 1
-    if (next > TOTAL_REAL - VISIBLE) {
-      busyRef.current = true
+    if (next > MAX_IDX) {
+      // Hit trailing clones — animate then snap back to MIN_IDX
       goTo(next, true)
-      const track = trackRef.current!
-      const handler = () => {
-        track.removeEventListener('transitionend', handler)
-        goTo(0, false)
+      withTransitionEnd(() => {
+        goTo(MIN_IDX, false)
         busyRef.current = false
-      }
-      track.addEventListener('transitionend', handler)
+      })
     } else {
-      goTo(next)
+      goTo(next, true)
+      withTransitionEnd(() => { busyRef.current = false })
     }
   }
 
   const retreat = () => {
     if (busyRef.current) return
-    if (current === 0) {
-      busyRef.current = true
-      const max = TOTAL_REAL - VISIBLE
-      goTo(max + 1, false)
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        goTo(max, true)
-        const track = trackRef.current!
-        const handler = () => {
-          track.removeEventListener('transitionend', handler)
-          busyRef.current = false
-        }
-        track.addEventListener('transitionend', handler)
-      }))
+    busyRef.current = true
+    const prev = current - 1
+    if (prev < MIN_IDX) {
+      // Hit leading clones — animate then snap forward to MAX_IDX
+      goTo(prev, true)
+      withTransitionEnd(() => {
+        goTo(MAX_IDX, false)
+        busyRef.current = false
+      })
     } else {
-      goTo(current - 1)
+      goTo(prev, true)
+      withTransitionEnd(() => { busyRef.current = false })
     }
   }
 
@@ -77,12 +89,18 @@ export default function Carousel() {
     timerRef.current = setInterval(advance, 3500)
   }
 
+  // Set initial scroll position to skip past leading clones (no animation)
+  useEffect(() => {
+    goTo(MIN_IDX, false)
+  }, [])
+
   useEffect(() => {
     resetTimer()
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [current])
 
-  const activeDot = Math.min(Math.floor(current / 2), 2)
+  // Dot 0 = MIN_IDX (2), dot 1 = MIN_IDX+1 (3), dot 2 = MAX_IDX (4)
+  const activeDot = Math.max(0, Math.min(2, current - MIN_IDX))
 
   return (
     <div style={{ padding: '80px 0', background: 'var(--bg-primary)', overflow: 'hidden' }}>
@@ -173,7 +191,7 @@ export default function Carousel() {
         {[0, 1, 2].map(i => (
           <button
             key={i}
-            onClick={() => { goTo(i * 2); resetTimer() }}
+            onClick={() => { if (!busyRef.current) { goTo(MIN_IDX + i); resetTimer() } }}
             style={{
               height: '2px',
               width: activeDot === i ? '56px' : '28px',

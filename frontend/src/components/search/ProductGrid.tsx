@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
 import type { SearchResultItem } from '@/lib/types'
 
@@ -13,6 +13,8 @@ const PAGE_SIZE = 20
 
 export default function ProductGrid({ products, total, view }: Props) {
   const [pageIndex, setPageIndex] = useState(0)
+
+  useEffect(() => { setPageIndex(0) }, [products])
 
   const pageCount = Math.ceil(products.length / PAGE_SIZE)
   const safePage = Math.min(pageIndex, Math.max(0, pageCount - 1))
