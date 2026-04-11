@@ -74,9 +74,11 @@ Use this for a real demo with live search results.
 **Terminal 1 — install and start the backend:**
 ```bash
 # From Asos_Engine_Project/
-pip install -r backend/requirements.txt
-uvicorn backend.app.main:app --reload --port 8000
+python -m pip install -r backend/requirements.txt
+python -m uvicorn backend.app.main:app --reload --port 8000
 ```
+
+> **Windows note:** Use `python -m uvicorn` (not bare `uvicorn`). PowerShell does not automatically add Python's `Scripts/` folder to PATH, so the bare command is not found.
 
 On first run, the engine will build FAISS indexes from `asos_clean.csv`. This takes a few minutes and produces files in `asos_engine/`. Subsequent runs skip this and load directly.
 
