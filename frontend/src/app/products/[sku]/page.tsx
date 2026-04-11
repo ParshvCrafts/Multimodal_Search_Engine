@@ -25,6 +25,7 @@ export default async function ProductDetailPage({ params }: Props) {
     : MOCK_OUTFIT_ITEMS.map(p => ({
         sku: p.sku, name: p.name, brand: p.brand,
         price: p.price, category: p.category, image_url: p.image_url,
+        color_family: '',
       }))
 
   const relatedItems = similar.results.length > 0 ? similar.results : MOCK_RELATED

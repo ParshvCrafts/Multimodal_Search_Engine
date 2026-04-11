@@ -64,8 +64,10 @@ export interface OutfitItem {
   name: string
   brand: string
   price: number
+  color_family: string
   category: string
   image_url: string
+  outfit_score?: number
 }
 
 export interface OutfitResponse {

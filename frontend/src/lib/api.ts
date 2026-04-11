@@ -1,4 +1,4 @@
-import { SearchResponse, ProductDetail, OutfitResponse, SortOption } from './types'
+import { SearchResponse, SearchResultItem, ProductDetail, OutfitResponse, OutfitItem, SortOption } from './types'
 import { MOCK_PRODUCTS, MOCK_PRODUCT_DETAIL, MOCK_OUTFIT_ITEMS, MOCK_RELATED } from './mock-data'
 
 const BASE = process.env.NEXT_PUBLIC_API_URL
@@ -75,7 +75,16 @@ export async function getProduct(sku: string): Promise<ProductDetail> {
   }
   const res = await fetch(`${BASE}/api/v1/products/${sku}`)
   if (!res.ok) throw new Error(`Product not found: ${sku}`)
-  return res.json()
+  const raw = await res.json()
+  // Backend returns sizes_available, no available_colors array
+  return {
+    ...raw,
+    available_sizes: raw.sizes_available ?? [],
+    unavailable_sizes: [],
+    available_colors: raw.color
+      ? [{ name: raw.color, hex: '' }]
+      : [],
+  }
 }
 
 export async function getOutfit(sku: string): Promise<OutfitResponse> {
@@ -85,12 +94,19 @@ export async function getOutfit(sku: string): Promise<OutfitResponse> {
       items: MOCK_OUTFIT_ITEMS.map(p => ({
         sku: p.sku, name: p.name, brand: p.brand,
         price: p.price, category: p.category, image_url: p.image_url,
+        color_family: '',
       })),
     }
   }
   const res = await fetch(`${BASE}/api/v1/products/${sku}/outfit`)
   if (!res.ok) throw new Error(`Outfit failed: ${sku}`)
-  return res.json()
+  const raw = await res.json()
+  // Backend returns { source, outfit: { [category]: OutfitItem[] } }
+  // Flatten to a single list
+  const items: OutfitItem[] = Object.values(
+    raw.outfit as Record<string, OutfitItem[]>
+  ).flat()
+  return { items }
 }
 
 export async function getSimilar(sku: string, topN = 5): Promise<SearchResponse> {
@@ -104,5 +120,25 @@ export async function getSimilar(sku: string, topN = 5): Promise<SearchResponse>
   }
   const res = await fetch(`${BASE}/api/v1/search/similar/${sku}?top_n=${topN}`)
   if (!res.ok) throw new Error(`Similar failed: ${sku}`)
-  return res.json()
+  const raw = await res.json()
+  // Backend returns SimilarResponse { source, results: SimilarProductItem[], total }
+  // SimilarProductItem has similarity_score, not score
+  const results: SearchResultItem[] = raw.results.map((item: {
+    sku: string; name: string; brand: string; price: number;
+    color: string; category: string; image_url: string; similarity_score: number;
+  }) => ({
+    sku: item.sku,
+    name: item.name,
+    brand: item.brand,
+    price: item.price,
+    color: item.color,
+    color_family: '',
+    category: item.category,
+    gender: '',
+    image_url: item.image_url,
+    score: item.similarity_score,
+    style_tags: [],
+    in_stock: true,
+  }))
+  return { results, query_info: { ...EMPTY_QUERY_INFO }, total: raw.total }
 }
