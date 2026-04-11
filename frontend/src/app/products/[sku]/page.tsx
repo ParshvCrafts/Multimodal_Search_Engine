@@ -39,6 +39,7 @@ export default async function ProductDetailPage({ params }: Props) {
         {/* Left: Gallery */}
         <Gallery
           imageUrls={product.image_urls ?? []}
+          imageUrl={product.image_url}
           score={product.score}
           productName={product.name}
         />

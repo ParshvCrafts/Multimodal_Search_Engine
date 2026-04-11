@@ -33,7 +33,12 @@ export default function CompleteTheLook({ items, title = 'Complete the Look', su
                 width: '100%', aspectRatio: '3/4',
                 background: '#151515', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <span style={{ fontSize: '10px', letterSpacing: '0.18em', color: '#222', textTransform: 'uppercase' }}>Image</span>
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                ) : (
+                  <span style={{ fontSize: '10px', letterSpacing: '0.18em', color: '#222', textTransform: 'uppercase' }}>No Image</span>
+                )}
               </div>
               <div style={{ padding: '12px 2px 4px' }}>
                 <div style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '4px' }}>

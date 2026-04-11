@@ -3,13 +3,22 @@ import { useState } from 'react'
 
 interface Props {
   imageUrls: string[]
+  imageUrl?: string
   score?: number
   productName: string
 }
 
-export default function Gallery({ imageUrls, score, productName }: Props) {
+export default function Gallery({ imageUrls, imageUrl, score, productName }: Props) {
   const [activeThumb, setActiveThumb] = useState(0)
-  const thumbs = imageUrls.length >= 4 ? imageUrls.slice(0, 4) : ['', '', '', '']
+  // Build display array: primary first, then extras, padded to 4
+  const allUrls = (() => {
+    const base = imageUrl
+      ? [imageUrl, ...imageUrls.filter(u => u && u !== imageUrl)]
+      : [...imageUrls]
+    while (base.length < 4) base.push('')
+    return base.slice(0, 4)
+  })()
+  const thumbs = allUrls
 
   return (
     <div style={{ padding: '40px 40px 40px 56px', background: 'var(--bg-primary)' }}>
@@ -25,9 +34,15 @@ export default function Gallery({ imageUrls, score, productName }: Props) {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <span style={{ fontSize: '11px', letterSpacing: '0.25em', color: '#222', textTransform: 'uppercase' }}>
-          {productName}
-        </span>
+        {thumbs[activeThumb] ? (
+          <img
+            src={thumbs[activeThumb]}
+            alt={productName}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <span style={{ fontSize: '11px', letterSpacing: '0.18em', color: '#2a2a2a', textTransform: 'uppercase' }}>No Image</span>
+        )}
 
         {/* Match score badge - top left */}
         {score !== undefined && (
@@ -45,7 +60,7 @@ export default function Gallery({ imageUrls, score, productName }: Props) {
 
       {/* 4 thumbnails */}
       <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-        {thumbs.map((_, i) => (
+        {thumbs.map((url, i) => (
           <div
             key={i}
             onClick={() => setActiveThumb(i)}
@@ -63,9 +78,10 @@ export default function Gallery({ imageUrls, score, productName }: Props) {
               overflow: 'hidden',
             }}
           >
-            <span style={{ fontSize: '9px', letterSpacing: '0.15em', color: '#222', textTransform: 'uppercase' }}>
-              {i + 1}
-            </span>
+            {url ? (
+              <img src={url} alt={`${productName} view ${i + 1}`}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            ) : null}
           </div>
         ))}
       </div>
