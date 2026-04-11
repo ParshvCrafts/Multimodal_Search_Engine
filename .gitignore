@@ -1,6 +1,9 @@
 # Superpowers brainstorm artifacts
 .superpowers/
 
+# Playwright MCP browser state
+.playwright-mcp/
+
 # Frontend build artifacts
 frontend/.next/
 frontend/node_modules/
