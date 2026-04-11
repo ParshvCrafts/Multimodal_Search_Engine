@@ -103,7 +103,8 @@ Interactive API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 cd frontend
 
 # Create local env file pointing to the running backend
-echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+# Use printf, not echo -- PowerShell's echo writes UTF-16 which Next.js cannot read
+printf 'NEXT_PUBLIC_API_URL=http://localhost:8000\n' > .env.local
 
 npm install
 npm run dev
