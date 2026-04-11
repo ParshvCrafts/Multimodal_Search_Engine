@@ -17,6 +17,7 @@ ENV PYTHONPATH=/app
 ENV ASOS_DATA_PATH=/data/asos_clean.csv
 ENV ASOS_PERSISTENT_DIR=/data/asos_engine
 
-EXPOSE 8000
+# PORT is injected by Render (~10000) and HuggingFace Spaces (7860); falls back to 8000 locally
+EXPOSE ${PORT:-8000}
 
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
