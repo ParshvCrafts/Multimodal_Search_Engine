@@ -5,3 +5,54 @@
 frontend/.next/
 frontend/node_modules/
 frontend/.env.local
+frontend/tsconfig.tsbuildinfo
+
+# Backend Python artifacts
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+backend/.pytest_cache/
+backend/**/.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Data files (large, not version-controlled)
+asos_clean.csv
+asos_clean.parquet
+*.csv
+*.parquet
+
+# ML artifacts (large, regenerated at startup)
+asos_engine/
+asos_image_cache/
+*.npy
+*.bin
+*.pt
+*.pth
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/**/.ipynb_checkpoints/
