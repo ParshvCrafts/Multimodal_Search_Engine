@@ -164,9 +164,17 @@ export default function Carousel() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <span style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#2a2a2a', textTransform: 'uppercase' }}>
-                  Product Image
-                </span>
+                {card.image_url ? (
+                  <img
+                    src={card.image_url}
+                    alt={card.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#2a2a2a', textTransform: 'uppercase' }}>
+                    Product Image
+                  </span>
+                )}
               </div>
               {/* Body */}
               <div style={{ padding: '18px 2px 2px', display: 'flex', flexDirection: 'column', flex: 1 }}>
