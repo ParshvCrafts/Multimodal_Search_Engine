@@ -40,9 +40,17 @@ export default function ProductCard({ product, showScore }: Props) {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          <span style={{ fontSize: '10px', letterSpacing: '0.2em', color: '#222', textTransform: 'uppercase' }}>
-            Product
-          </span>
+          {product.image_url ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          ) : (
+            <span style={{ fontSize: '10px', letterSpacing: '0.18em', color: '#222', textTransform: 'uppercase' }}>
+              No Image
+            </span>
+          )}
 
           {/* Score badge */}
           {showScore && (
