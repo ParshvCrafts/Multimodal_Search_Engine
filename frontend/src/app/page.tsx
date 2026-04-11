@@ -1,9 +1,19 @@
+import Hero from '@/components/landing/Hero'
+import Marquee from '@/components/landing/Marquee'
+import Features from '@/components/landing/Features'
+import Carousel from '@/components/landing/Carousel'
+import SearchTeaser from '@/components/landing/SearchTeaser'
+import Footer from '@/components/layout/Footer'
+
 export default function LandingPage() {
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ color: 'var(--text-secondary)', fontFamily: "'Georgia', serif", fontSize: '14px', letterSpacing: '0.3em' }}>
-        INTERLACE - Loading...
-      </span>
+    <main>
+      <Hero />
+      <Marquee />
+      <Features />
+      <Carousel />
+      <SearchTeaser />
+      <Footer />
     </main>
   )
 }
