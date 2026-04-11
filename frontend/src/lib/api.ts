@@ -80,6 +80,7 @@ export async function getProduct(sku: string): Promise<ProductDetail> {
 
 export async function getOutfit(sku: string): Promise<OutfitResponse> {
   if (useMock()) {
+    await new Promise(r => setTimeout(r, 300))
     return {
       items: MOCK_OUTFIT_ITEMS.map(p => ({
         sku: p.sku, name: p.name, brand: p.brand,
@@ -94,6 +95,7 @@ export async function getOutfit(sku: string): Promise<OutfitResponse> {
 
 export async function getSimilar(sku: string, topN = 5): Promise<SearchResponse> {
   if (useMock()) {
+    await new Promise(r => setTimeout(r, 350))
     return {
       results: MOCK_RELATED,
       query_info: { ...EMPTY_QUERY_INFO },
