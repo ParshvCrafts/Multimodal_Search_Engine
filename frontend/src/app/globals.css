@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #080808;
+  --bg-secondary: #0a0a0a;
+  --bg-card: #0f0f0f;
+  --bg-teaser: #0d0d0d;
+  --text-primary: #e8e2d9;
+  --text-secondary: #666;
+  --text-dim: #444;
+  --accent: #c9a96e;
+  --accent-soft: #c4b89a;
+  --border-hard: #141414;
+  --border-soft: #222;
+  --nav-bg: rgba(8, 8, 8, 0.92);
+}
+
+.light {
+  --bg-primary: #f5f0e8;
+  --bg-secondary: #ede8dc;
+  --bg-card: #ede8dc;
+  --bg-teaser: #ede8dc;
+  --text-primary: #1a1a1a;
+  --text-secondary: #9a8a7a;
+  --text-dim: #b8a898;
+  --accent: #7a5c3a;
+  --accent-soft: #7a5c3a;
+  --border-hard: #e0d9ce;
+  --border-soft: #d8d0c4;
+  --nav-bg: rgba(245, 240, 232, 0.94);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: system-ui, sans-serif;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
