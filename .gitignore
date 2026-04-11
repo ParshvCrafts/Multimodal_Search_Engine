@@ -1,0 +1,7 @@
+# Superpowers brainstorm artifacts
+.superpowers/
+
+# Frontend build artifacts
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
