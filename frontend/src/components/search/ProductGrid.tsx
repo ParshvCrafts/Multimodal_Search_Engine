@@ -94,11 +94,11 @@ export default function ProductGrid({ products, total, view }: Props) {
         <div style={{
           display: 'grid',
           gridTemplateColumns: gridCols,
-          gap: '16px',
+          gap: view === 'list' ? '0' : '16px',
           transition: 'grid-template-columns 0.3s',
         }}>
           {pageProducts.map(p => (
-            <ProductCard key={p.sku} product={p} showScore />
+            <ProductCard key={p.sku} product={p} showScore view={view} />
           ))}
         </div>
       )}

@@ -1,8 +1,15 @@
-# Superpowers brainstorm artifacts
+# Internal tooling artifacts
 .superpowers/
+docs/superpowers/
 
 # Playwright MCP browser state
 .playwright-mcp/
+
+# Scratch / experiment scripts
+ASOS_Searc_Engine_scripty.py
+
+# Old/duplicate public assets
+frontend/public/image (2).png
 
 # Frontend build artifacts
 frontend/.next/

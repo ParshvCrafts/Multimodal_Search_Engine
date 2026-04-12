@@ -12,9 +12,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('interlace-theme');if(t==='light')document.documentElement.classList.add('light');}catch(e){}` }} />
+        {/* Theme initialiser — runs before page paints, prevents flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('interlace-theme');if(t==='light')document.documentElement.classList.add('light');}catch(e){}`
+          }}
+        />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider>
           <Navbar />
           <div style={{ paddingTop: '68px' }}>

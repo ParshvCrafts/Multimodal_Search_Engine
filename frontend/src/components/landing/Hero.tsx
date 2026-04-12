@@ -1,10 +1,13 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null)
+  const heroImgRef = useRef<HTMLImageElement>(null)
   const router = useRouter()
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
     import('gsap').then(({ gsap }) => {
@@ -15,7 +18,15 @@ export default function Hero() {
         { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: 'power3.out', delay: 0.2 }
       )
     })
+    const img = heroImgRef.current
+    if (img) {
+      if (img.complete && img.naturalWidth > 0) setImageLoaded(true)
+      else if (img.complete && img.naturalWidth === 0) setImageError(true)
+    }
   }, [])
+
+  const onHeroLoad = useCallback(() => setImageLoaded(true), [])
+  const onHeroError = useCallback(() => setImageError(true), [])
 
   return (
     <div style={{
@@ -27,36 +38,118 @@ export default function Hero() {
       overflow: 'hidden',
       background: 'var(--bg-primary)',
     }}>
-      {/* 5-column grid overlay */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)',
-        pointerEvents: 'none',
-      }}>
-        {[0,1,2,3,4].map(i => (
-          <div key={i} style={{ borderRight: '1px solid var(--border-hard)' }} />
-        ))}
-      </div>
 
-      {/* Right image panel */}
+      {/* Hero image — spans 80% on the right */}
       <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: '44%',
-        background: 'var(--bg-card)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'absolute',
+        top: 0, right: 0, bottom: 0,
+        width: '75%',
+        overflow: 'hidden',
+        zIndex: 2,
       }}>
-        <span style={{ fontSize: '11px', letterSpacing: '0.25em', color: 'var(--border-soft)', textTransform: 'uppercase' }}>
-          Hero Image
-        </span>
-        {/* Gradient fade on left edge */}
+        {/* Image — always in the tree; opacity controls visibility */}
+        <img
+          ref={heroImgRef}
+          src="/main.png?v=2"
+          alt="Interlace Fashion"
+          onLoad={onHeroLoad}
+          onError={onHeroError}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center center',
+            display: 'block',
+            opacity: imageLoaded ? 1 : 0,
+            transition: 'opacity 0.6s ease',
+          }}
+        />
+
+        {/* Error placeholder — always in the tree; opacity controls visibility */}
         <div style={{
-          position: 'absolute', left: 0, top: 0, bottom: 0, width: '220px',
-          background: 'linear-gradient(to right, var(--bg-primary) 0%, transparent 100%)',
+          position: 'absolute',
+          top: 0, right: 0, bottom: 0, left: 0,
+          background: 'var(--bg-card)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: imageError ? 1 : 0,
+          pointerEvents: imageError ? 'auto' : 'none',
+          transition: 'opacity 0.3s ease',
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            padding: '40px',
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              border: '1px solid #222',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '28px',
+              color: '#333',
+            }}>
+              ✦
+            </div>
+            <span style={{
+              fontSize: '11px',
+              letterSpacing: '0.25em',
+              color: '#333',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+              lineHeight: 1.8,
+            }}>
+              Add your brand image<br/>
+              <span style={{ color: '#555', letterSpacing: '0.15em', fontSize: '10px' }}>
+                Place <code style={{ background: '#1a1a1a', padding: '2px 6px', borderRadius: '2px', color: 'var(--accent)' }}>main.png</code> in{' '}
+                <code style={{ background: '#1a1a1a', padding: '2px 6px', borderRadius: '2px', color: 'var(--accent)' }}>frontend/public/</code>
+              </span>
+            </span>
+          </div>
+        </div>
+
+        {/* Gradient fade — left edge dissolves into background */}
+        <div style={{
+          position: 'absolute',
+          top: 0, bottom: 0, left: 0,
+          width: '50%',
+          background: 'linear-gradient(to right, var(--bg-primary) 0%, var(--bg-primary) 12%, rgba(8,8,8,0.65) 28%, rgba(8,8,8,0.4) 60%, transparent 100%)',
           pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+        {/* Top-edge vignette */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          height: '70px',
+          background: 'linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+        {/* Bottom-edge vignette */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0,
+          height: '120px',
+          background: 'linear-gradient(to top, var(--bg-primary) 0%, transparent 100%)',
+          pointerEvents: 'none',
+          zIndex: 1,
         }} />
       </div>
 
-      {/* Main content */}
-      <div style={{ position: 'relative', zIndex: 2, padding: '0 56px 0 96px', maxWidth: '60%' }}>
+      {/* Main content — text side */}
+      <div style={{
+        position: 'relative',
+        zIndex: 3,
+        padding: '0 56px 0 clamp(80px, 8vw, 140px)',
+        maxWidth: '48%',
+      }}>
         {/* Eyebrow */}
         <div style={{
           fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase',

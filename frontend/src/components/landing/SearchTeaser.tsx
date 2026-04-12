@@ -6,7 +6,10 @@ export default function SearchTeaser() {
   const router = useRouter()
   const [query, setQuery] = useState('')
 
-  const handleSearch = () => router.push('/search')
+  const handleSearch = () => {
+    const q = query.trim()
+    router.push(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+  }
 
   return (
     <div style={{

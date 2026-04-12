@@ -5,6 +5,10 @@ const BASE = process.env.NEXT_PUBLIC_API_URL
 
 function useMock() { return !BASE }
 
+export function isMockMode() {
+  return useMock()
+}
+
 const EMPTY_QUERY_INFO = {
   original_query: '',
   processed_query: '',
@@ -52,6 +56,32 @@ export async function searchProducts(params: {
   return res.json()
 }
 
+/**
+ * Convert any browser-supported image File to a JPEG Blob via Canvas.
+ * This ensures the backend (PIL) can always decode the image, even when
+ * modern browsers supply AVIF, WebP, or HEIC formats.
+ */
+async function convertToJpeg(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { reject(new Error('Canvas not supported')); return }
+      ctx.drawImage(img, 0, 0)
+      canvas.toBlob(
+        blob => blob ? resolve(blob) : reject(new Error('Canvas toBlob failed')),
+        'image/jpeg',
+        0.92,
+      )
+    }
+    img.onerror = () => reject(new Error('Could not load image for conversion'))
+    img.src = URL.createObjectURL(file)
+  })
+}
+
 export async function searchByImage(file: File, topN: number): Promise<SearchResponse> {
   if (useMock()) {
     await new Promise(r => setTimeout(r, 500))
@@ -61,8 +91,10 @@ export async function searchByImage(file: File, topN: number): Promise<SearchRes
       total: Math.min(topN, MOCK_PRODUCTS.length),
     }
   }
+  // Convert to JPEG to guarantee PIL compatibility on the backend
+  const jpegBlob = await convertToJpeg(file)
   const form = new FormData()
-  form.append('file', file)
+  form.append('file', jpegBlob, 'upload.jpg')
   const res = await fetch(`${BASE}/api/v1/search/image?top_n=${topN}`, { method: 'POST', body: form })
   if (!res.ok) throw new Error(`Image search failed: ${res.status}`)
   return res.json()
@@ -79,6 +111,12 @@ export async function getProduct(sku: string): Promise<ProductDetail> {
   // Backend returns sizes_available, no available_colors array
   return {
     ...raw,
+    materials: raw.materials ?? [],
+    material: Array.isArray(raw.materials) && raw.materials.length > 0
+      ? raw.materials.join(', ')
+      : undefined,
+    description: raw.product_details ?? undefined,
+    product_details: raw.product_details ?? undefined,
     available_sizes: raw.sizes_available ?? [],
     unavailable_sizes: [],
     available_colors: raw.color

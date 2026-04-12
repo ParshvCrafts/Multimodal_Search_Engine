@@ -164,19 +164,6 @@ export default function SearchBar({ onSearch, loading, initialQuery = '' }: Prop
         </button>
       </div>
 
-      {/* Mode hint */}
-      <div style={{ marginTop: '10px', fontSize: '11px', color: '#333', letterSpacing: '0.08em', display: 'flex', gap: '20px' }}>
-        {[
-          { dot: '#c9a96e', label: 'Text mode' },
-          { dot: '#7a9ec9', label: 'Image mode' },
-          { dot: '#9a7ac9', label: 'Multimodal' },
-        ].map(({ dot, label }) => (
-          <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: dot, flexShrink: 0 }} />
-            {label}
-          </span>
-        ))}
-      </div>
     </div>
   )
 }

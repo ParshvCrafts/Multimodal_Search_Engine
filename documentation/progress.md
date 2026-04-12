@@ -1,31 +1,63 @@
 # Progress
 
-## Completed
-- [x] **Phase 1 — Engine modularization**: Refactored 2,789-line monolith into `backend/app/engine/` modules
-- [x] **Phase 2 — FastAPI backend**: Routers, service layer, Pydantic v2, dependency injection, lifespan startup, CORS
-- [x] **Backend tests**: pytest suite — API endpoints, query parser, NLP, BM25 (`backend/tests/`)
-- [x] **Phase 3 — Frontend**: Next.js 15 App Router, "Noir Editorial" design system, all 3 routes (landing/search/product detail), hybrid mock+live API client, theme toggle, GSAP animations, clone carousel, pagination
-- [x] **Frontend deployed**: Live at `https://frontend-ten-phi-njv8fyo6df.vercel.app` (mock mode, no backend connected)
-- [x] **Post-review bug fixes**: Carousel busyRef + seamless backward wrap, ProductGrid page reset, ThemeContext flash fix
+## Completed — All Phases
 
-## In Progress / Blocked
-- [ ] **Frontend ↔ Backend integration**: Schema mismatches in `api.ts` + image rendering (see below)
-- [ ] **Backend deployment**: Not deployed — no live URL yet
+### Phase 1–3: Foundation
+- Backend modularization: monolith → `backend/app/engine/`, FastAPI API layer
+- Frontend: App Router UI with hybrid mock/live client
+- First live integration pass: fixed mock leaks, error swallowing, 404 handling
 
-## Known Schema Mismatches (must fix before live integration)
-| Issue | Location | Fix |
-|---|---|---|
-| `getOutfit()` flat vs grouped | `frontend/src/lib/api.ts` | Flatten backend `outfit: {category: items[]}` |
-| `getSimilar()` field mismatch | `frontend/src/lib/api.ts` | Map `similarity_score` → `score` |
-| `getProduct()` field mismatch | `frontend/src/lib/api.ts` | Map `sizes_available` → `available_sizes` |
-| Image placeholders | `ProductCard, Gallery, Carousel, OutfitStrip, CompleteTheLook` | Use `<img src={image_url}>` |
+### Phase 4: Live Integration Stabilization
+- Removed live-mode mock seeding on `/search`
+- Changed invalid SKU behavior from `500` → `404`
+- Surfaced search failures in `handleSearch` and `handleTopNChange`
+- Mapped backend `materials` and `product_details` into product detail UI
 
-## Next Up
-- Phase 4: Fix schema mismatches + render real images (see `docs/superpowers/plans/2026-04-11-frontend-backend-integration.md`)
-- Phase 5: Deploy backend to Railway/Render, wire `NEXT_PUBLIC_API_URL` on Vercel
+### Phase 5: Landing Page Overhaul (Latest)
+- **Carousel**: Replaced mock data with 12 hand-picked real ASOS products (curated for diversity across category, gender, color, price)
+  - Source: `frontend/src/lib/featured-products.ts`
+  - Infinite seamless loop using 3x card cloning (no snap-back glitch)
+  - Card-by-card CSS transition stepping, auto-advance every 3.5s
+  - Hover-to-pause, arrow navigation, clickable dot indicators
+  - Cards link to real product detail pages (`/products/[sku]`)
+- **Hero**: Added `main.png` brand image support
+  - Loads `/main.png` from `frontend/public/` automatically
+  - If missing: styled fallback placeholder with instructions
+  - Hydration-safe: `useEffect` + `naturalWidth` check handles SSR race
+- **Featured Products**: Created `featured-products.ts` with diverse ASOS catalog items:
+  - Dresses, Jackets, Jeans, Knitwear, Tops, Skirts, Tailoring, Hoodies
+  - Women / Men / Unisex mix, £13–£105 price range
 
-## Stats
-- Backend: 12 Python modules, 6 test files
-- Frontend: 18 components, 3 routes, 1 context, hybrid API client
-- Data: `asos_clean.csv` in project root (gitignored)
-- Indexes: `asos_engine/` (gitignored, regenerated on startup)
+## Verification Performed
+- `GET /api/v1/health` → healthy, 29971 products
+- `POST /api/v1/search` → real ASOS results with images
+- `GET /api/v1/products/109450190` → full product detail
+- `GET /api/v1/products/109450190/outfit` → outfit recommendations
+- `GET /api/v1/search/similar/109450190` → similarity results
+- `npx tsc --noEmit` → passes
+- **Browser**: Landing page hero shows styled placeholder (or main.png if present)
+- **Browser**: Carousel renders real ASOS product images, auto-scrolls, wraps infinitely
+- **Browser**: Carousel arrow buttons step forward/backward, hover pauses
+- **Browser**: Carousel cards navigate to live product detail pages
+- **Browser**: Text search returns real results with visible images
+- **Browser**: Product detail shows materials, sizes, Complete the Look, You May Also Like
+
+### Phase 6: Search UX, Filter System, List View
+- **FilterBar**: 5 filter dimensions (Gender, Category, Color, Size, Price) with backend-parseable query term mapping
+  - Dropdowns rendered via React Portal (`createPortal`) onto `document.body` — escapes `overflowX: auto` scroll-container clipping
+  - Position: `fixed` at `getBoundingClientRect().bottom/left`, `zIndex: 9999`
+  - Scroll-close skips events originating inside the dropdown panel; outside-click via `mousedown` listener
+  - Filter-only search supported: filter terms build a natural-language query the backend QueryParser extracts
+  - Filter + text search: text query prepended so backend parser gives it priority
+- **ProductCard list layout**: dedicated row layout when `view='list'`
+  - 160px image strip left, info centre (brand/name/color·category·gender/style tags), price+score right
+  - `minHeight: 176px`, `borderBottom` hairline separators, hover background highlight
+- **Search page**: filter state drives immediate re-search; `textQuery` tracked for filter+text combo; `SearchSpinner` on loading
+- **Layout fix**: `next/script` replaced with native `<script dangerouslySetInnerHTML>` in `<head>` — React 19 prohibits script elements in the component tree
+- **Hero image**: served from `frontend/public/main.png`
+
+## Still Pending
+- Browser verification of image upload / multimodal search
+- Deployment (backend + frontend) and production smoke tests
+- Regression coverage for live-mode behavior
+- Mobile responsiveness polish

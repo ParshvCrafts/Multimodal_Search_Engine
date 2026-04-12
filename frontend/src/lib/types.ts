@@ -47,6 +47,7 @@ export interface ProductDetail {
   url?: string
   score?: number
   style_tags: string[]
+  materials: string[]
   in_stock: boolean
   fit?: string
   material?: string
@@ -54,6 +55,7 @@ export interface ProductDetail {
   unavailable_sizes: string[]
   available_colors: { name: string; hex: string }[]
   description?: string
+  product_details?: string
   care_instructions?: string[]
   sizing_info?: string
   delivery_info?: string
