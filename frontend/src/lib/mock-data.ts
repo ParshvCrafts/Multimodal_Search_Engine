@@ -38,6 +38,7 @@ export const MOCK_PRODUCT_DETAIL: ProductDetail = {
   style_tags: ['Floral', 'Wrap', 'Midi', 'Occasion', 'Boho', 'Summer', 'Elegant'],
   in_stock: true,
   fit: 'Regular',
+  materials: ['Viscose'],
   material: 'Viscose',
   available_sizes: ['XS', 'S', 'M', 'L'],
   unavailable_sizes: ['XL', 'XXL'],
